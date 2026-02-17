@@ -1,9 +1,8 @@
 const bOui = document.getElementById('btn-oui');
 const bNon = document.getElementById('btn-non');
 
-// Message de victoire
-bOui.addEventListener('click', () => {
-    // Changement du texte
+// Fonction de victoire
+function celebrer() {
     const container = document.querySelector('.container');
     container.innerHTML = `
         <h1 style="font-size: 4rem;">OUI ! ❤️</h1>
@@ -22,129 +21,144 @@ bOui.addEventListener('click', () => {
         confetti({
             particleCount: 20,
             spread: 60,
-            shapes: ['heart'], // Des confettis en forme de coeur !
+            shapes: ['heart'],
             colors: ['#ff4d6d', '#ff0000'],
             origin: { y: 0.7 }
         });
     }, 500);
-});
+}
 
-// Logique de fuite
-function fuir() {
-    // 1. On récupère les dimensions de la fenêtre et du bouton
-    const btnWidth = bNon.offsetWidth;
-    const btnHeight = bNon.offsetHeight;
+// Logique de fuite (ajustée pour accepter n'importe quel bouton)
+function fuir(el) {
+    el.style.transition = "none";
+    el.style.transform = "none"; 
+    el.style.margin = "0";
+
+    if (el.parentElement !== document.body) {
+        document.body.appendChild(el);
+    }
+
+    const btnWidth = el.offsetWidth;
+    const btnHeight = el.offsetHeight;
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
 
-    // 2. On calcule la position max possible pour ne pas sortir
-    // On enlève la taille du bouton ET une marge de sécurité de 20px
-    const maxWidth = windowWidth - btnWidth - 20;
-    const maxHeight = windowHeight - btnHeight - 20;
+    const safetyMargin = 30;
+    const maxX = Math.max(safetyMargin, windowWidth - btnWidth - safetyMargin);
+    const maxY = Math.max(safetyMargin, windowHeight - btnHeight - safetyMargin);
 
-    // 3. Calcul aléatoire (Math.max(0, ...) empêche d'avoir un nombre négatif)
-    const randomX = Math.max(0, Math.floor(Math.random() * maxWidth));
-    const randomY = Math.max(0, Math.floor(Math.random() * maxHeight));
+    const randomX = Math.floor(Math.random() * (maxX - safetyMargin + 1)) + safetyMargin;
+    const randomY = Math.floor(Math.random() * (maxY - safetyMargin + 1)) + safetyMargin;
 
-    // 4. Application du style
-    bNon.style.position = "fixed"; // "fixed" est plus sûr que "absolute" ici pour garantir le repère par rapport à l'écran
-    bNon.style.left = `${randomX}px`;
-    bNon.style.top = `${randomY}px`;
+    el.style.position = "fixed";
+    el.style.left = `${randomX}px`;
+    el.style.top = `${randomY}px`;
+    el.style.zIndex = "10000";
     
-    // Ajout esthétique : on fait tourner un peu le bouton pour le rendre plus "fou"
-    const randomAngle = (Math.random() * 20) - 10; // Entre -10 et 10 degrés
-    bNon.style.transform = `rotate(${randomAngle}deg)`;
+    const randomAngle = (Math.random() * 20) - 10;
+    el.style.transform = `rotate(${randomAngle}deg)`;
+
+    setTimeout(() => {
+        el.style.transition = "all 0.3s ease-out";
+    }, 10);
 }
 
-// Événements (Souris et Tactile)
-bNon.addEventListener('mouseover', fuir);
-bNon.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    fuir();
+// Transformation du bouton en Oui
+function transformerEnOui(el) {
+    el.innerText = "OUI ! ❤️";
+    el.style.backgroundColor = "var(--primary-color)";
+    el.style.color = "white";
+    el.style.border = "none";
+    el.style.animation = "pulse 2s infinite";
+    el.style.pointerEvents = "auto";
+    
+    // Nettoyage des événements de fuite
+    el.removeEventListener('mouseover', handleHover);
+    el.removeEventListener('touchstart', handleHover);
+    el.onclick = celebrer; // Utilisation de onclick pour simplifier le remplacement
+}
+
+// Transformation du bouton en Non (avec fuite)
+function transformerEnNon(el) {
+    el.innerText = "Non";
+    el.style.backgroundColor = "white";
+    el.style.color = "var(--text-color)";
+    el.style.border = "2px solid var(--secondary-color)";
+    el.style.animation = "none";
+    el.onclick = null;
+    
+    // Ajout de la logique de fuite
+    el.addEventListener('mouseover', handleHover);
+    el.addEventListener('touchstart', handleHover);
+}
+
+// Événement principal sur le survol
+function handleHover(e) {
+    if (e && e.type === 'touchstart') {
+        e.preventDefault();
+    }
+
+    const target = e.currentTarget;
+    const rand = Math.random();
+
+    if (rand < 0.95) {
+        // 1 - le bouton change de position (95% de chance)
+        fuir(target);
+    } else if (rand < 0.99) {
+        // 2 - Inversion des rôles (4% de chance)
+        const autreBouton = (target === bNon) ? bOui : bNon;
+        
+        transformerEnOui(target);
+        transformerEnNon(autreBouton);
+        
+        // On fait fuir le nouveau bouton "Non" immédiatement pour l'effet
+        fuir(autreBouton);
+    } else {
+        // 3 - le bouton devient oui (1% de chance)
+        transformerEnOui(target);
+    }
+}
+
+// Initialisation des événements
+bOui.addEventListener('click', celebrer);
+bNon.addEventListener('mouseover', handleHover);
+bNon.addEventListener('touchstart', handleHover);
+
+// Sécurité redimensionnement
+window.addEventListener('resize', () => {
+    [bOui, bNon].forEach(btn => {
+        if (btn.parentElement === document.body && btn.innerText === "Non") {
+            fuir(btn);
+        }
+    });
 });
 
 // ==========================================
-// FOND ANIMÉ : PLUIE DE CŒURS
+// FOND ANIMÉ OPTIMISÉ (CSS + JS)
 // ==========================================
 
-const canvas = document.getElementById('heart-canvas');
-const ctx = canvas.getContext('2d');
-
-// On s'assure que le canvas fait toujours la taille de la fenêtre
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas(); // Appel initial
-
-let heartsArray = [];
-
-class HeartParticle {
-    constructor() {
-        // Position de départ aléatoire en bas de l'écran
-        this.x = Math.random() * canvas.width;
-        this.y = canvas.height + Math.random() * 100;
-        // Taille aléatoire entre 10px et 30px
-        this.size = Math.random() * 20 + 10;
-        // Vitesse verticale aléatoire
-        this.speedY = Math.random() * 1 + 0.5;
-        // Opacité de départ
-        this.opacity = 1;
-        // Une petite rotation aléatoire pour le style
-        this.angle = Math.random() * 360;
-        this.spinSpeed = Math.random() * 2 - 1; // Vitesse de rotation
-    }
-
-    update() {
-        // Le cœur monte
-        this.y -= this.speedY;
-        // L'opacité diminue doucement
-        this.opacity -= 0.003;
-        // Rotation
-        this.angle += this.spinSpeed;
-
-        // Si le cœur est invisible, on le reset en bas pour le recycler
-        if (this.opacity <= 0) {
-            this.y = canvas.height + Math.random() * 100;
-            this.x = Math.random() * canvas.width;
-            this.opacity = 1;
-            this.speedY = Math.random() * 1 + 0.5;
-        }
-    }
-
-    draw() {
-        ctx.save(); // Sauvegarde l'état actuel du canvas
-        ctx.globalAlpha = this.opacity; // Applique la transparence
-        ctx.translate(this.x, this.y); // Déplace le point de dessin
-        ctx.rotate(this.angle * Math.PI / 180); // Applique la rotation
-        ctx.font = `${this.size}px Arial`;
-        ctx.fillText('❤️', 0 - this.size/2, 0 + this.size/2); // Dessine l'emoji
-        ctx.restore(); // Restaure l'état (pour ne pas affecter les autres cœurs)
-    }
-}
-
-// Initialisation : on crée 50 cœurs
-function initHearts() {
-    for (let i = 0; i < 50; i++) {
-        heartsArray.push(new HeartParticle());
-    }
-}
-
-// La boucle d'animation principale
-function animateHearts() {
-    // On nettoie le canvas à chaque frame
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.innerHTML = '❤️'; // Tu peux varier les emojis : 🌹, 💖, 🌸
     
-    // Pour chaque cœur, on met à jour sa position et on le dessine
-    for (let i = 0; i < heartsArray.length; i++) {
-        heartsArray[i].update();
-        heartsArray[i].draw();
-    }
-    // Rappelle la fonction pour la prochaine frame (environ 60fps)
-    requestAnimationFrame(animateHearts);
+    // Position horizontale aléatoire (0 à 100vw)
+    heart.style.left = Math.random() * 100 + "vw";
+    
+    // Taille aléatoire pour la profondeur
+    heart.style.fontSize = Math.random() * 20 + 10 + "px";
+    
+    // Durée d'animation aléatoire (entre 3s et 6s) pour ne pas que ça fasse "robotique"
+    heart.style.animationDuration = Math.random() * 3 + 3 + "s";
+    
+    document.getElementById('hearts-container').appendChild(heart);
+    
+    // Nettoyage : On supprime l'élément du DOM quand l'animation est finie
+    // C'est CRUCIAL pour ne pas faire planter le navigateur à la longue
+    setTimeout(() => {
+        heart.remove();
+    }, 6000); // 6000ms correspond à la durée max de l'animation
 }
 
-// Lancement
-initHearts();
-animateHearts();
+// On génère un cœur tous les 300ms (ajuste ce chiffre : 100 = tempête, 500 = brise légère)
+setInterval(createHeart, 300);

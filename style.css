@@ -5,33 +5,63 @@
     --glass-bg: rgba(255, 255, 255, 0.85); /* Blanc semi-transparent */
 }
 
-body {
+* {
+    box-sizing: border-box;
+}
+
+html, body {
     margin: 0;
     padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    /* ON REMPLACE L'IMAGE PAR UN DÉGRADÉ DOUX */
-    /* background: url('...') no-repeat ...;  <- ANCIENNE LIGNE */
-    background: linear-gradient(135deg, #ffe5ec 0%, #ffc2d1 100%); /* Nouvelle ligne */
+    /* Fond rouge élégant en dégradé */
+    background: radial-gradient(circle, #ff4d6d 0%, #c9184a 50%, #590d22 100%);
     font-family: 'Poppins', sans-serif;
     overflow: hidden;
-    position: relative; /* Nécessaire pour superposer le canvas */
 }
 
-/* AJOUT : Styles pour le canvas d'arrière-plan */
-#heart-canvas {
-    position: fixed; /* Reste fixé même si on scroll */
+/* Le conteneur qui prend tout l'écran mais reste derrière */
+#hearts-container {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1; /* TRES IMPORTANT : Place le canvas DERRIÈRE le contenu */
-    pointer-events: none; /* Le canvas ne bloquera pas les clics de souris */
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none; /* Laisse passer les clics */
 }
 
-/* Le reste du CSS (.container, h1, etc.) ne change pas */
+/* Le style de base d'un cœur */
+.heart {
+    position: absolute;
+    bottom: -50px; /* On commence hors de l'écran en bas */
+    font-size: 2rem;
+    animation: floatUp 6s linear forwards; /* Durée de vie de 6s */
+    opacity: 0;
+}
+
+/* L'animation pure CSS (gérée par la carte graphique) */
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1; /* Apparaît rapidement */
+    }
+    100% {
+        transform: translateY(-110vh) scale(1.2) rotate(20deg); /* Monte tout en haut */
+        opacity: 0;
+    }
+}
 
 .container {
     text-align: center;
