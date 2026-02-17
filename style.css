@@ -1,50 +1,111 @@
-/* On nettoie les marges par défaut du navigateur */
+:root {
+    --primary-color: #ff4d6d; /* Rose framboise */
+    --secondary-color: #ffe5ec; /* Rose très pâle */
+    --text-color: #590d22; /* Rouge foncé pour le texte */
+    --glass-bg: rgba(255, 255, 255, 0.85); /* Blanc semi-transparent */
+}
+
 body {
     margin: 0;
     padding: 0;
-    height: 100vh; /* 100% de la hauteur de l'écran */
-    display: flex; /* Active le mode Flexible Box pour centrer facilement */
-    justify-content: center; /* Centre horizontalement */
-    align-items: center; /* Centre verticalement */
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* Un joli dégradé */
-    font-family: 'Arial', sans-serif;
-    overflow: hidden; /* Empêche de scroller si le bouton bouge trop loin */
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* ON REMPLACE L'IMAGE PAR UN DÉGRADÉ DOUX */
+    /* background: url('...') no-repeat ...;  <- ANCIENNE LIGNE */
+    background: linear-gradient(135deg, #ffe5ec 0%, #ffc2d1 100%); /* Nouvelle ligne */
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+    position: relative; /* Nécessaire pour superposer le canvas */
 }
 
+/* AJOUT : Styles pour le canvas d'arrière-plan */
+#heart-canvas {
+    position: fixed; /* Reste fixé même si on scroll */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* TRES IMPORTANT : Place le canvas DERRIÈRE le contenu */
+    pointer-events: none; /* Le canvas ne bloquera pas les clics de souris */
+}
+
+/* Le reste du CSS (.container, h1, etc.) ne change pas */
+
 .container {
-    text-align: center; /* Centre le texte */
-    background: white;
-    padding: 40px;
-    border-radius: 20px; /* Arrondit les angles */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Petite ombre portée élégante */
+    text-align: center;
+    background: var(--glass-bg);
+    padding: 50px;
+    border-radius: 30px;
+    /* Effet de flou d'arrière-plan (Glassmorphism) */
+    backdrop-filter: blur(10px); 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    border: 2px solid rgba(255,255,255,0.8);
+    max-width: 90%;
+    width: 400px;
 }
 
 h1 {
-    color: #ff4757; /* Rouge rosé */
-    margin-bottom: 30px;
+    font-family: 'Great Vibes', cursive; /* Police manuscrite */
+    color: var(--primary-color);
+    font-size: 3.5rem;
+    margin: 0;
+    line-height: 1.2;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.sous-titre {
+    color: var(--text-color);
+    margin-bottom: 40px;
+    font-size: 1.1rem;
 }
 
 button {
-    font-size: 18px;
-    padding: 10px 25px;
-    margin: 0 10px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.2rem;
+    padding: 12px 35px;
+    margin: 10px;
     border: none;
-    border-radius: 5px;
+    border-radius: 50px; /* Forme de pilule */
     cursor: pointer;
-    transition: transform 0.2s ease; /* Animation fluide au survol */
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
+/* Style du bouton OUI */
 #btn-oui {
-    background-color: #2ed573; /* Vert */
+    background-color: var(--primary-color);
     color: white;
+    /* Petite animation de battement de coeur */
+    animation: pulse 2s infinite;
 }
 
 #btn-oui:hover {
-    transform: scale(1.1); /* Le bouton grossit un peu quand on passe dessus */
+    transform: scale(1.05);
+    background-color: #d90429;
+    box-shadow: 0 0 20px var(--primary-color);
 }
 
+/* Style du bouton NON */
 #btn-non {
-    background-color: #ff6b81; /* Rouge */
-    color: white;
-    position: relative; /* Nécessaire pour pouvoir le bouger après */
+    background-color: white;
+    color: var(--text-color);
+    border: 2px solid var(--secondary-color);
+    position: relative; /* Important pour le mouvement */
+}
+
+/* L'animation "Pulse" pour le bouton OUI */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Responsive pour mobile */
+@media (max-width: 600px) {
+    h1 { font-size: 2.8rem; }
+    .container { padding: 30px 20px; }
+    button { padding: 10px 25px; font-size: 1rem; }
 }
