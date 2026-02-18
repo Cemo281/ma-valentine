@@ -43,6 +43,7 @@ Aucune compilation n'est nécessaire. Vous pouvez lancer le projet directement.
 
 3.  **Déploiement (Optionnel) :**
     Pour partager le lien avec votre Valentine, activez **GitHub Pages** dans les paramètres du dépôt (Source : `main` branch).
+    OU partagez lui ce lien [https://cemo281.github.io/ma-valentine/] (moins sexy).
 
 ## 🎨 Personnalisation
 
