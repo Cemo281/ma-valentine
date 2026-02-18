@@ -72,8 +72,8 @@ body {
     backdrop-filter: blur(10px); 
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
     border: 2px solid rgba(255,255,255,0.8);
-    max-width: 90%;
-    width: 400px;
+    max-width: 95%;
+    width: 700px;
 }
 
 h1 {
@@ -131,6 +131,20 @@ button {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
+}
+
+/* Animation de battement pour le container */
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    15% { transform: scale(1.05); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.1); }
+    70% { transform: scale(1); }
+    100% { transform: scale(1); }
+}
+
+.heart-beat-active {
+    animation: heartBeat 1.2s infinite ease-in-out;
 }
 
 /* Responsive pour mobile */

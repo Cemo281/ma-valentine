@@ -2,17 +2,43 @@ const bOui = document.getElementById('btn-oui');
 const bNon = document.getElementById('btn-non');
 
 // Fonction de victoire
-function celebrer() {
-    // On masque les boutons s'ils sont encore présents dans le body
-    [bOui, bNon].forEach(btn => {
-        btn.style.display = 'none';
-    });
+function celebrer(e) {
+    const clickedBtn = e ? e.currentTarget : bOui;
+    const otherBtn = (clickedBtn === bOui) ? bNon : bOui;
+
+    // On masque l'autre bouton
+    otherBtn.style.display = 'none';
+
+    // On s'assure que le bouton cliqué est bien visible et stylisé
+    clickedBtn.style.position = "relative";
+    clickedBtn.style.left = "auto";
+    clickedBtn.style.top = "auto";
+    clickedBtn.style.transform = "scale(1.2)";
+    clickedBtn.style.margin = "20px auto";
+    clickedBtn.style.display = "inline-block";
+    clickedBtn.onclick = null; // On désactive le clic pour éviter de relancer
+    
+    // Si le bouton était dans le body (après fuite), on le remet dans le container pour le centrage
+    const btnContainer = document.querySelector('.buttons');
+    if (clickedBtn.parentElement !== btnContainer) {
+        btnContainer.appendChild(clickedBtn);
+    }
 
     const container = document.querySelector('.container');
-    container.innerHTML = `
-        <h1 style="font-size: 4rem;">OUI ! ❤️</h1>
-        <p style="font-size: 1.5rem; color: #590d22;">Rendez-vous le 14 !</p>
-    `;
+    container.classList.add('heart-beat-active'); // On lance le battement !
+    
+    const titre = container.querySelector('h1');
+    const sousTitre = container.querySelector('.sous-titre');
+
+    titre.innerHTML = "OUI ! ❤️";
+    titre.style.fontSize = "4rem";
+    sousTitre.innerHTML = "Rendez-vous le 14 !";
+    sousTitre.style.fontSize = "1.5rem";
+    
+    // On vide le contenu des boutons pour ne laisser que celui qui a été cliqué
+    // mais on garde la structure pour le centrage si nécessaire.
+    // Alternativement, on change juste le texte autour.
+
     
     // Lancement des confettis
     confetti({
@@ -80,7 +106,7 @@ function transformerEnOui(el) {
     // Nettoyage des événements de fuite
     el.removeEventListener('mouseover', handleHover);
     el.removeEventListener('touchstart', handleHover);
-    el.onclick = celebrer; // Utilisation de onclick pour simplifier le remplacement
+    el.addEventListener('click', celebrer); // Utilisation d'un listener pour avoir l'événement
 }
 
 // Transformation du bouton en Non (avec fuite)
@@ -90,6 +116,7 @@ function transformerEnNon(el) {
     el.style.color = "var(--text-color)";
     el.style.border = "2px solid var(--secondary-color)";
     el.style.animation = "none";
+    el.removeEventListener('click', celebrer); // Nettoyage de l'éventuelle célébration précédente
     el.onclick = null;
     
     // Ajout de la logique de fuite
