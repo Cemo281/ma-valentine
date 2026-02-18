@@ -3,6 +3,11 @@ const bNon = document.getElementById('btn-non');
 
 // Fonction de victoire
 function celebrer() {
+    // On masque les boutons s'ils sont encore présents dans le body
+    [bOui, bNon].forEach(btn => {
+        btn.style.display = 'none';
+    });
+
     const container = document.querySelector('.container');
     container.innerHTML = `
         <h1 style="font-size: 4rem;">OUI ! ❤️</h1>
